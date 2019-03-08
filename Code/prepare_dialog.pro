@@ -131,7 +131,7 @@ btnDiff = CW_BGROUP(basePrepare, 'Diff Images', /COLUMN, /NONEXCLUSIVE, xoffset 
 
 
 btnprepare = WIDGET_BUTTON(basePrepare, VALUE='Process', uvalue='PREPARE', xoffset = 10, yoffset = 160, event_pro = 'prepareDLG_event');, sensitive= 1)
-btnadvanced = WIDGET_BUTTON(basePrepare, VALUE='Advanced', uvalue='ADVANCED', xoffset = 75, yoffset = 160, event_pro = 'advancedDLG_event');, sensitive= 1)
+btnadvanced = WIDGET_BUTTON(basePrepare, VALUE='Advanced', uvalue='ADVANCED', xoffset = 75, yoffset = 160, event_pro = 'advancedDLG_event', sensitive= pro_exists('cgstretch'))
 btnDone = WIDGET_BUTTON(basePrepare, VALUE='Done', uvalue = 'DONE', xoffset = 150, yoffset = 160, event_pro = 'closePrepare_event')
 
 
