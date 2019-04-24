@@ -24,7 +24,7 @@
 ;       20181120: created by jhinterreiter
 ;-
 pro EAGEL, ELEvoHIDate, datetime = datetime
-	common widPrepare, isPrepare, dattim, stdet, ladet, rect, diffImg, adv
+	common widPrepare, isPrepare, dattim, stdet, ladet, rect, diffImgST, diffImgLA, adv
 	common widPositon, widOffsetPos
 	
 	
@@ -66,7 +66,7 @@ while 1 eq 1 do begin
 		base = get_main_layout(date_time, 0, btnArr = btns, widPos)
 		WIDGET_CONTROL, base, /REALIZE
 		widget_control, /hourglass
-		prepare_data, date_time, stdet, ladet, rect, diffImg, adv, parent = base
+		prepare_data, date_time, stdet, ladet, rect, diffImgST, diffImgLA, adv, parent = base
 		widget_control, base, /destroy
 	endif
 	if isPrepare ne 1 then break

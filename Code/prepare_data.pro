@@ -22,14 +22,15 @@ end
 ;       Makes 'nice' images that can are used for GCS fitting
 ;
 ; CALLING SEQUENCE:
-;		prepare_data, date_time, stdet, ladet, rect, diffImg, adv
+;		prepare_data, date_time, stdet, ladet, rect, diffImgST, diffImgLA, adv
 ;
 ; INPUTS:
 ;       date_time: date and time of the images to prepare. e.g.: '20101104T03:39:09' 
 ;		stdet: STEREO detector ('COR1' or 'COR2')
 ;		ladet: LASCO detector ('C2' or 'C3')
 ;		rectify: set to 1 if the LASCO image is upside down
-;		diffImg: set to 1 if a difference image is desired
+;		diffImgST: set to 1 if a difference image is desired for STEREO
+;		diffImgLA: set to 1 if a difference image is desired for LASCO
 ;		advanced: set to 1 if you want to run cgstretch for the images, otherwise standard parameter are used
 ;
 ; KEYWORDS:
@@ -43,7 +44,7 @@ end
 ; MODIFICATION HISTORY:
 ;       20181129: created by jhinterreiter
 ;-
-pro prepare_data, datetime, stdet, ladet, rectify, diffImg, advanced, status = status, parent = parent
+pro prepare_data, datetime, stdet, ladet, rectify, diffImgST, diffImgLA, advanced, status = status, parent = parent
 	common threshs, minthresh, maxthresh
 
 status = 0
@@ -56,7 +57,8 @@ if 0 eq 1 then begin
 	ladet = 'C3'
 	stdet = 'cor2'
 	rectify = 1
-	diffImg = 0
+	diffImgST = 0
+	diffImgLA = 0
 	advanced = 1
 endif
 ; !!!! END JUST FOR TEST !!!!!
@@ -119,7 +121,7 @@ endif else begin
 	; !!!!! LASCO !!!!!!
 	pan = imgsize/float(1024)
 	
-	if DiffImg eq 1 then begin
+	if DiffImgLA eq 1 then begin
 		iml2 = mk_img(l_img, -20, 80, hdrl2, use_model=2,pan=pan,/diff, /inmask, rectify = rectify, /no_display)
 		iml1 = mk_img(l_img_before, -20, 80, hdrl1, use_model=2,pan=pan,/diff, /inmask, rectify = rectify, /no_display)
 
@@ -160,7 +162,7 @@ endif else begin
 	endif else begin
 
 		; !!!!! STA !!!!!!
-		if diffImg eq 1 then begin
+		if diffImgST eq 1 then begin
 			ima1ok=scc_mk_image(a_img_before,outsize=imgsize,outhdr=hdra1,/nologo,/nodatetime,/nopop,/noscale,/norotate);, /mask_occ)
 			ima2ok=scc_mk_image(a_img,outsize=imgsize,outhdr=hdra2,/nologo,/nodatetime,/nopop,/noscale,/norotate);, /mask_occ)
 			imaDiff=ima2ok-ima1ok
@@ -173,7 +175,7 @@ endif else begin
 
 		if STBNotAvailable eq 0 then begin
 			; !!!!! STB !!!!!!
-			if diffImg eq 1 then begin
+			if diffImgST eq 1 then begin
 				imb1ok=scc_mk_image(b_img_before,outsize=imgsize,outhdr=hdrb1,/nologo,/nodatetime,/nopop,/noscale,/norotate);, /mask_occ)
 				imb2ok=scc_mk_image(b_img,outsize=imgsize,outhdr=hdrb2,/nologo,/nodatetime,/nopop,/noscale,/norotate);, /mask_occ)
 				imbDiff=imb2ok-imb1ok

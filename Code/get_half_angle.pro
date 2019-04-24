@@ -364,10 +364,57 @@ function get_half_angle, datetime, sgui, swire, parent
 			print, 'Apex angle (STA)', apexanglesta
 
 			msg = Dialog_message('Continue with this selection?', /question, dialog_parent = parent)
+;			msg = 'Yes'
 			!Mouse.Button = 1
 			if msg eq 'Yes' then wdelete, 0
 		endwhile
+		
+		
+		;!!!TODO remove again
+		makepsPlot = 0
+		if makepsPlot eq 1 then begin
+		;	!p.multi = [0, 1, 3]
+			set_plot, 'ps'
+			!p.thick = 3
+			plotPath = '/home/jhinterreiter/'
+;			if file_test(plotPath, /directory) eq 0 then file_mkdir, plotPath, /NOEXPAND_PATH
+			
+		
+			device, filename = plotPath + '_cut.ps', xsize = 15, ysize = 25, xoffset = 2, yoffset = 2, encaps = 0
+			
+			
+;			window, 0, xsize = 750, ysize = 750
+			plot, x, y, xrange = xrange, yrange = yrange, xstyle = 1, ystyle = 1 $
+				, position = [0.3, 0.7, 0.8, 1.0] $
+			, /nodata, ytitle = 'r [R!D!9n!N!X]', xtitle = 'r [R!D!9n!N!X]', thick = 4;, title = 'Define CME boundaries, use left and right mouse buttons'
+	
+			for i = 0, filecnt-1 do begin
+				xA = listx[i]
+				yA = listy[i]
+				col = (256./filecnt)*(i+1)-1
+				cols[i]= col
+				oplot, xa, yA, psym = 8, symsize = 0.3, color = cgcolor('black')	
+				arrow, 0, 0, 0, !y.crange[1]-0.03*maxdiff, /data, color = cgcolor('blue')
+				xyouts, 0.09, !y.crange[1]-0.05*maxdiff, 'to Earth', /data, color = cgcolor('blue')
+	
+			endfor
 
+			;al_legend, times, /top, box = 0, charsize = 0.7, textcolors = cols
+			PLOTS,[0,leftx], [0,lefty], /data, color = cgcolor('red'), thick = 2
+			PLOTS,[0,rightx], [0,righty], /data, color = cgcolor('green'), thick = 2
+		;	plots, [0, stbx], [0, stby], /data, color = cgcolor('blue')
+		;	plots, [0, stax], [0, stay], /data, color = cgcolor('red')
+			;oplot, xvals[indFarestPoint], yvals[indFarestPoint], psym = 2, color = cgcolor('red')
+			;oplot, fltarr(1) + apexpositions[0], fltarr(1)+apexpositions[1], psym = 2, color = cgcolor('green')
+			plots, [0, range*sin(apexangle/!radeg)], [0, range*cos(apexAngle/!radeg)], /data, color = cgcolor('gray'), thick = 2
+
+
+			device, /close
+			set_plot, 'x'
+			!p.multi = 0
+			!p.thick = 0.0
+		endif
+		;!!!TODO end remove again
 
 		loadct, 0
 		return, retArr

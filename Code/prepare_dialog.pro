@@ -20,7 +20,7 @@ end
 ; event when clicking on 'Process'
 pro callPrepareData, ev, advanced
 	; global variables to save position and selections from the window
-	common widPrepare, isPrepare, datTim, stdet, ladet, rect, diffImg, adv
+	common widPrepare, isPrepare, datTim, stdet, ladet, rect, diffImgST, diffImgLA, adv
 	common widGL, widgetGL
 	common widPositon, widOffsetPos
 	
@@ -39,15 +39,18 @@ pro callPrepareData, ev, advanced
 	widget_control, dpList, get_value = LA_det
 	btnRect = WIDGET_INFO( ev.top, FIND_BY_UNAME ='CBRectify')
 	widget_control, btnRect, get_value = rectify
-	btnDiff = WIDGET_INFO( ev.top, FIND_BY_UNAME ='CBDiff')
-	widget_control, btnDiff, get_value = diff
+	btnDiffST = WIDGET_INFO( ev.top, FIND_BY_UNAME ='CBDiffST')
+	widget_control, btnDiffST, get_value = diffST
+	btnDiffLA = WIDGET_INFO( ev.top, FIND_BY_UNAME ='CBDiffLA')
+	widget_control, btnDiffLA, get_value = diffLA
 
 
 	stdet = ST_det[SelItemSt]
 	ladet = LA_det[selItemLA]
 	rect = rectify
 	adv = advanced
-	diffImg = diff
+	diffImgST = diffST
+	diffImgLA = diffLA
 	dattim = datetime
 	isPrepare = 1
 
@@ -113,30 +116,32 @@ END
 ;       20181129: created by jhinterreiter
 ;-
 pro prepare_dialog, groupLeader, startDate
-common widGL, widgetGL
+	common widGL, widgetGL
 
-widgetGl = groupLeader
+	widgetGl = groupLeader
 
-basePrepare = widget_base(group_leader = groupLeader, xsize = 200, ysize = 185, frame = 0, title = 'Download Data', tab_mode = 1, /modal)
-labDate = widget_label(basePrepare, value = 'Date:', /align_left, yoffset = 15)
-txtDate = widget_text(basePrepare, value = startDate, uname = 'txtDatePrepare', yoffset = 10, xoffset = 50, /editable, /all_events);, event_pro='test_event')
-labDetStereo = widget_label(basePrepare, value = 'Detector Stereo:', yoffset = 50)
-labDetLasco = widget_label(basePrepare, value = 'Detector Lasco:', yoffset = 80)
+	basePrepare = widget_base(group_leader = groupLeader, xsize = 350, ysize = 150, frame = 0, title = 'Download Data', tab_mode = 1, /modal)
+	;basePrepare = widget_base(xsize = 350, ysize = 150, frame = 0, title = 'Download Data', tab_mode = 1)
+	labDate = widget_label(basePrepare, value = 'Date:', /align_left, yoffset = 15)
+	txtDate = widget_text(basePrepare, value = startDate, uname = 'txtDatePrepare', yoffset = 10, xoffset = 50, /editable, /all_events, xsize = 45);, event_pro='test_event')
+	labDetStereo = widget_label(basePrepare, value = 'Detector Stereo:', yoffset = 50)
+	labDetLasco = widget_label(basePrepare, value = 'Detector Lasco:', yoffset = 80)
 
-drpListLASCO = widget_droplist(basePrepare, value = ['C2', 'C3'], uname = 'dropList_LA', Tab_mode = 1, xoffset = 100, yoffset = 70);, func_get_value = 'getVAlDLST')
-drpListST = widget_droplist(basePrepare, value = ['COR2', 'COR1'], uname = 'dropList_ST', Tab_mode = 1, xoffset = 100, yoffset = 40);, func_get_value = 'getVAlDLST')
+	drpListLASCO = widget_droplist(basePrepare, value = ['C2', 'C3'], uname = 'dropList_LA', Tab_mode = 1, xoffset = 100, yoffset = 70);, func_get_value = 'getVAlDLST')
+	drpListST = widget_droplist(basePrepare, value = ['COR2', 'COR1'], uname = 'dropList_ST', Tab_mode = 1, xoffset = 100, yoffset = 40);, func_get_value = 'getVAlDLST')
 
-btnRectify = CW_BGROUP(basePrepare, 'Rectify', /COLUMN, /NONEXCLUSIVE, yoffset = 105, uname='CBRectify') 
-btnDiff = CW_BGROUP(basePrepare, 'Diff Images', /COLUMN, /NONEXCLUSIVE, xoffset = 75, yoffset = 105, uname='CBDiff')
-
-
-btnprepare = WIDGET_BUTTON(basePrepare, VALUE='Process', uvalue='PREPARE', xoffset = 10, yoffset = 160, event_pro = 'prepareDLG_event');, sensitive= 1)
-btnadvanced = WIDGET_BUTTON(basePrepare, VALUE='Advanced', uvalue='ADVANCED', xoffset = 75, yoffset = 160, event_pro = 'advancedDLG_event', sensitive= pro_exists('cgstretch'))
-btnDone = WIDGET_BUTTON(basePrepare, VALUE='Done', uvalue = 'DONE', xoffset = 150, yoffset = 160, event_pro = 'closePrepare_event')
+	btnDiffST = CW_BGROUP(basePrepare, 'Diff Images', /COLUMN, /NONEXCLUSIVE, xoffset = 175, yoffset = 40, uname='CBDiffST')
+	btnRectify = CW_BGROUP(basePrepare, 'Rectify', /COLUMN, /NONEXCLUSIVE, xoffset = 275, yoffset = 70, uname='CBRectify') 
+	btnDiffLA = CW_BGROUP(basePrepare, 'Diff Images', /COLUMN, /NONEXCLUSIVE, xoffset = 175, yoffset = 70, uname='CBDiffLA')
 
 
-WIDGET_CONTROL, basePrepare, /REALIZE
+	btnprepare = WIDGET_BUTTON(basePrepare, VALUE='Process', uvalue='PREPARE', xoffset = 20, yoffset = 120, event_pro = 'prepareDLG_event');, sensitive= 1)
+	btnadvanced = WIDGET_BUTTON(basePrepare, VALUE='Advanced', uvalue='ADVANCED', xoffset = 155, yoffset = 120, event_pro = 'advancedDLG_event', sensitive= pro_exists('cgstretch'))
+	btnDone = WIDGET_BUTTON(basePrepare, VALUE='Done', uvalue = 'DONE', xoffset = 290, yoffset = 120, event_pro = 'closePrepare_event')
 
-XMANAGER, 'prepareDialog', basePrepare, cleanup = 'PrepareCleanup';, /no_block
+
+	WIDGET_CONTROL, basePrepare, /REALIZE
+
+	XMANAGER, 'prepareDialog', basePrepare, cleanup = 'PrepareCleanup';, /no_block
 
 end
