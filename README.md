@@ -13,3 +13,5 @@ fitting. For a detailed description see Thernisien et al. 2006 and 2009.
 
 For pre-processing the coronagraph images the coyote library by David Fanning 
 (http://www.idlcoyote.com/documents/programs.php) is needed.
+
+EAGEL was developed and tested with IDL Version 8.4
