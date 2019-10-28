@@ -28,6 +28,8 @@ pro callPrepareData, ev, advanced
 	widget_control, widgetGL, tlb_get_offset = offset	
 	widOffsetPos = offset
 	
+	olddatetime = datTim
+	
 	widget_control, ev.id, get_value = myval
 	txtStart = WIDGET_INFO( ev.top, FIND_BY_UNAME ='txtDatePrepare')
 	widget_control, txtStart, get_value = datetime
@@ -57,8 +59,24 @@ pro callPrepareData, ev, advanced
 	
 	filePrepared = check_filesPrepared(datetime, isPrepared = isFilePrepared)
 	if isfilePrepared then begin
-	
+
+		if datetime ne olddatetime then begin	
+			imgsize = 256
+			restore, filePrepared
+			r_iml = rebin(iml, imgsize, imgsize)
+			r_ima = rebin(ima, imgsize, imgsize)
+			r_imb = rebin(imb, imgsize, imgsize)
+
+
+			window, 1, xsize=3*imgsize, ysize=imgsize, title = 'STB: '+hdrb.date_obs+'       Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
+			tv, r_imb, 0
+			tv, r_iml, 1
+			tv, r_ima, 2
+			dateChanged = 0
+		endif
 		msg = Dialog_message('Images already prepared. Do you want to redo?', /question, dialog_parent = ev.top)
+		
+		
 		;window, 1
 		;wdelete, 1
 		if msg eq 'No' then isPrepare = 0
@@ -68,6 +86,9 @@ pro callPrepareData, ev, advanced
 			WIDGET_CONTROL, widgetGL, /DESTROY
 			;prepareData, datetime, ST_det[SelItemSt], LA_det[selItemLA], rectify, diff, advanced, ev.top, status = status
 		endif
+		
+		window, 1, xsize = 1, ysize = 1
+		wdelete, 1
 	endif else begin
 		; close all the windows and get back to eagel.pro
 		WIDGET_CONTROL, ev.top, /DESTROY
@@ -88,7 +109,6 @@ pro prepareDLG_event, ev
 	callPrepareData, ev, 0
 ;	WIDGET_CONTROL, ev.top, /destroy
 END
-
 
 
 
@@ -140,8 +160,26 @@ pro prepare_dialog, groupLeader, startDate
 	btnDone = WIDGET_BUTTON(basePrepare, VALUE='Done', uvalue = 'DONE', xoffset = 290, yoffset = 120, event_pro = 'closePrepare_event')
 
 
-	WIDGET_CONTROL, basePrepare, /REALIZE
+	filePrepared = check_filesPrepared(startDate, isPrepared = isFilePrepared)
+	if isfilePrepared then begin
+		imgsize = 256
+		restore, filePrepared
+		r_iml = rebin(iml, imgsize, imgsize)
+		r_ima = rebin(ima, imgsize, imgsize)
+		r_imb = rebin(imb, imgsize, imgsize)
 
+		window, 1, xsize=3*imgsize, ysize=imgsize, title = 'STB:        Lasco        STA: '
+		tv, r_imb, 0
+		tv, r_iml, 1
+		tv, r_ima, 2
+	end
+
+	WIDGET_CONTROL, basePrepare, /REALIZE
+	
+	
 	XMANAGER, 'prepareDialog', basePrepare, cleanup = 'PrepareCleanup';, /no_block
+	
+	
+
 
 end

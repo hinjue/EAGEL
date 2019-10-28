@@ -205,38 +205,81 @@ endif else begin
 	
 	widget_control, /hourglass
 
-	iml = iml_final
+	iml_new = iml_final
 	hdrl = hdrl2st
-	ima = ima_final
+	ima_new = ima_final
 	hdra = hdra2
 	if STBNotAvailable eq 0 then begin
-		imb = imb_final
+		imb_new = imb_final
 		hdrb = hdrb2
 	endif else begin
 		imb = -1
 		hdrb = -1
 	endelse
-
-	tim = strmid(time, 0, 2)+strmid(time, 3, 2)+strmid(time, 6, 2)
 	
-	savPath = getenv('EAGEL_DIR')+'/results/'+date+'/'
-	if (file_exist(savPath) eq 0) then file_mkdir, savPath
 	
-	;save the images
-	save, iml, hdrl, ima, hdra, imb, hdrb, filename = savPath+date+'_'+tim+'.sav'
-
 	loadct, 0
 
+	smallSize = imgsize/2
 	if STBNotAvailable eq 0 then begin
-		window, 1, xsize=3*imgsize, ysize=imgsize, title = 'STB: '+hdrb.date_obs+'       Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
-		tv, imb, 0
-		tv, iml, 1
-		tv, ima, 2
+		r_iml = rebin(iml_new, smallSize, smallSize)
+		r_ima = rebin(ima_new, smallSize, smallSize)
+		r_imb = rebin(imb_new, smallSize, smallSize)
+		window, 1, xsize=3*smallSize, ysize=smallSize, ypos = 0, xpos = 0, title = 'NEW:	STB: '+hdrb.date_obs+'       Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
+		tv, r_imb, 0
+		tv, r_iml, 1
+		tv, r_ima, 2
 	endif else begin
-		window, 1, xsize=2*imgsize, ysize=imgsize, title = 'Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
-		tv, iml, 0
-		tv, ima, 1
+		r_iml = rebin(iml_new, smallSize, smallSize)
+		r_ima = rebin(ima_new, smallSize, smallSize)
+		
+		window, 1, xsize=2*smallSize, ysize=smallSize, ypose = 0, xpos = 0, title = 'NEW:	Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
+		tv, r_iml, 0
+		tv, r_ima, 1
 	endelse
+	
+	msg = 'Yes'
+	filePrepared = check_filesPrepared(datetime, isPrepared = isFilePrepared)
+	if isfilePrepared then begin
+
+		restore, filePrepared
+		if STBNotAvailable eq 0 then begin
+			r_iml = rebin(iml, smallSize, smallSize)
+			r_ima = rebin(ima, smallSize, smallSize)
+			r_imb = rebin(imb, smallSize, smallSize)
+			window, 2, xsize=3*smallSize, ysize=smallSize, ypos = smallsize+30, xpos = 0, title = 'OLD:	STB: '+hdrb.date_obs+'       Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
+			tv, r_imb, 0
+			tv, r_iml, 1
+			tv, r_ima, 2
+		endif else begin
+			r_iml = rebin(iml, smallSize, smallSize)
+			r_ima = rebin(ima, smallSize, smallSize)
+		
+			window, 2, xsize=2*smallSize, ysize=smallSize, ypos = smallsize+30, xpos = 0, title = 'OLD:	Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
+			tv, r_iml, 0
+			tv, r_ima, 1
+		endelse
+		
+		msg = Dialog_message('Do you want to save the new images?', /question, dialog_parent = parent)
+		window, 1
+		window, 2
+		wdelete, 1
+		wdelete, 2
+	endif
+
+	
+	if msg eq 'Yes' then begin
+		ima = ima_new
+		imb = imb_new
+		iml = iml_new
+		tim = strmid(time, 0, 2)+strmid(time, 3, 2)+strmid(time, 6, 2)
+	
+		savPath = getenv('EAGEL_DIR')+'/results/'+date+'/'
+		if (file_exist(savPath) eq 0) then file_mkdir, savPath
+	
+		;save the images
+		save, iml, hdrl, ima, hdra, imb, hdrb, filename = savPath+date+'_'+tim+'.sav'
+	endif
 
 	status = 1
 	; to stop hourglass cursor

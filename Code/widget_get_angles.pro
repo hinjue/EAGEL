@@ -76,16 +76,14 @@ PRO close_event, ev
 end
 
 
-; event when clicking on 'Get Angles'
-PRO getParameter_event, ev
-	common angs, retAngles, ELEvoHI
+; event when clicking on 'Run GCS'
+PRO runGCS_event, ev
 	txtStart = WIDGET_INFO( ev.top, FIND_BY_UNAME ='txtStart')
 	
 	widget_control, txtStart, get_value = datetime
 	date = strmid(datetime[0], 0, 8)
 	sgui = get_sgui_struct(date)
-	
-	doSelectBoundaries = 0
+
 	paramsExist = isa(sgui, /array)
 	
 	msg = 'No'
@@ -94,7 +92,6 @@ PRO getParameter_event, ev
 	if paramsExist eq 1 then begin
 		msg = Dialog_message('Do wou want to use existing GCS parameter (from Helcats)?', /question, dialog_parent = ev.top)
 		if msg eq 'Yes' then begin
-			doSelectBoundaries = 1
 			swire = 0
 		endif
 	endif
@@ -130,15 +127,30 @@ PRO getParameter_event, ev
 					restore, fileDone, /verbose
 				endif
 			endif 
-			if msg eq 'No' then begin
-				restore, fileDone, /verbose
-				doSelectBoundaries = 1
-			endif
+			;if msg eq 'No' then begin
+			;	restore, fileDone, /verbose
+			;endif
 			;	runGCS, date
 		endelse
 	endif
+end
+
+
+; event when clicking on 'Create EC cut'
+PRO createECcut_event, ev
+	common angs, retAngles, ELEvoHI
+	txtStart = WIDGET_INFO( ev.top, FIND_BY_UNAME ='txtStart')
 	
-	if doSelectBoundaries eq 1 then begin
+	widget_control, txtStart, get_value = datetime
+	date = strmid(datetime[0], 0, 8)
+	sgui = get_sgui_struct(date)
+	
+	
+	fileDone = check_GCSDone(datetime, isDone = isGCSdone)
+	if isGCSdone eq 0 then begin
+		msg = Dialog_message('Run GCS first', /info, dialog_parent = ev.top)
+	endif else begin
+		restore, fileDone, /verbose
 		setButtonSensitivity, 0
 		tim = strmid(datetime[0], 9, strlen(datetime[0]))
 		tim = repstr(tim, ':', '')
@@ -148,7 +160,7 @@ PRO getParameter_event, ev
 		setButtonSensitivity, 1
 		
 		if isa(han, /array) eq 0 then begin
-			msg = Dialog_message('CME cloud not in ecliptic', /info, dialog_parent = ev.top)
+			;msg = Dialog_message('CME cloud not in ecliptic', /info, dialog_parent = ev.top)
 		endif else begin
 			retAngles = han
 		
@@ -178,7 +190,7 @@ PRO getParameter_event, ev
 			msg = Dialog_message('File saved to '+fname, /info, dialog_parent = ev.top)
 		endelse
 		
-	endif
+	endelse
 
 end
 

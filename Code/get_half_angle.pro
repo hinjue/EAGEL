@@ -243,10 +243,7 @@ function get_half_angle, datetime, sgui, swire, parent
 						rightX = xpos
 						rightY = ypos
 					endif
-	
-	
-	
-	
+
 					window, 0, xsize = 750, ysize = 750
 					plot, x, y, xrange = xrange, yrange = yrange, xstyle = 1, ystyle = 1 $
 				;	, position = [0.3, 0.7, 0.8, 1.0] $
@@ -367,6 +364,13 @@ function get_half_angle, datetime, sgui, swire, parent
 ;			msg = 'Yes'
 			!Mouse.Button = 1
 			if msg eq 'Yes' then wdelete, 0
+			if msg eq 'No' then begin
+				msg = Dialog_message('Do you want to quit?', /question, dialog_parent = parent)
+				if msg eq 'Yes' then begin
+					wdelete, 0
+					return, -1
+				endif
+			endif
 		endwhile
 		
 		
@@ -420,5 +424,6 @@ function get_half_angle, datetime, sgui, swire, parent
 		return, retArr
 	endif
 
-return, -1
+	msg = Dialog_message('CME cloud not in ecliptic', /info, dialog_parent = ev.top)
+	return, -1
 end

@@ -34,7 +34,8 @@ function get_main_layout, datetime, sensitive, btnArr = btnArr, offsetPos
 	txtStartDate = widget_text(base, value = datetime, uname = 'txtStart', xoffset = 100, /editable, /all_events, tab_mode = 1, sensitive = sensitive);, event_pro='test_event')
 
 	baseButtons = WIDGET_BASE(base, /ROW, /ALIGN_CENTER, tab_mode = 1)
-	btnGetParameter = WIDGET_BUTTON(baseButtons, VALUE='Get Angles', uvalue='GETParameter', event_pro = 'getParameter_event', tab_mode = 1, sensitive = sensitive)
+	btnGetParameter = WIDGET_BUTTON(baseButtons, VALUE='Create EC cut', uvalue='createECcut', event_pro = 'createECcut_event', tab_mode = 1, sensitive = sensitive)
+	btnGetParameter = WIDGET_BUTTON(baseButtons, VALUE='Run GCS', uvalue='runGCS', event_pro = 'runGCS_event', tab_mode = 1, sensitive = sensitive)
 	;btnRunGCS = WIDGET_BUTTON(baseButtons, VALUE='run GCS', uvalue='RUN_GCS', event_pro = 'runGCS_event', /tab_mode);, sensitive= 1)
 	btnPrepare = WIDGET_BUTTON(baseButtons, VALUE='Prepare Images', uvalue='PrepData', event_pro = 'prepare_event', tab_mode = 1, sensitive = sensitive)
 	btnDownload = WIDGET_BUTTON(baseButtons, VALUE='Download Images', uvalue='DWLDIMGS', event_pro='downloadImgs_event', tab_mode = 1, sensitive = sensitive)
