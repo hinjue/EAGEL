@@ -96,11 +96,10 @@ pro callPrepareData, ev, advanced
 			r_imb = rebin(imb, imgsize, imgsize)
 
 
-			window, 1, xsize=3*imgsize, ysize=imgsize, title = 'STB: '+hdrb.date_obs+'       Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
+			window, 1, xsize=3*imgsize, ysize=imgsize;, title = 'STB: '+hdrb.date_obs+'       Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
 			tv, r_imb, 0
 			tv, r_iml, 1
 			tv, r_ima, 2
-			dateChanged = 0
 		endif
 		msg = Dialog_message('Images already prepared. Do you want to redo?', /question, dialog_parent = ev.top)
 		
