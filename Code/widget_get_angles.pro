@@ -75,6 +75,11 @@ PRO close_event, ev
 	WIDGET_CONTROL, ev.top, /DESTROY
 end
 
+PRO rtImages_event, ev
+	common realTimeImages, rtActive
+	rtActive = ev.select
+end
+
 
 ; event when clicking on 'Run GCS'
 PRO runGCS_event, ev
@@ -93,9 +98,10 @@ PRO runGCS_event, ev
 		msg = Dialog_message('Do wou want to use existing GCS parameter (from Helcats)?', /question, dialog_parent = ev.top)
 		if msg eq 'Yes' then begin
 			swire = 0
+			createECcut_event, ev, sgui
 		endif
 	endif
-	
+
 	if msg eq 'No' then begin	
 		redoGCS = 1
 		filePrepared = check_filesPrepared(datetime, isPrepared = isFilePrepared)
@@ -137,20 +143,22 @@ end
 
 
 ; event when clicking on 'Create EC cut'
-PRO createECcut_event, ev
+PRO createECcut_event, ev, sgui
 	common angs, retAngles, ELEvoHI
+
 	txtStart = WIDGET_INFO( ev.top, FIND_BY_UNAME ='txtStart')
 	
 	widget_control, txtStart, get_value = datetime
 	date = strmid(datetime[0], 0, 8)
-	sgui = get_sgui_struct(date)
+	;sgui = get_sgui_struct(date)
 	
-	
+	paramsExist = isa(sgui, /array)
+
 	fileDone = check_GCSDone(datetime, isDone = isGCSdone)
-	if isGCSdone eq 0 then begin
+	if isGCSdone eq 0 and paramsExist eq 0 then begin
 		msg = Dialog_message('Run GCS first', /info, dialog_parent = ev.top)
 	endif else begin
-		restore, fileDone, /verbose
+		if paramsExist eq 0 then restore, fileDone, /verbose
 		setButtonSensitivity, 0
 		tim = strmid(datetime[0], 9, strlen(datetime[0]))
 		tim = repstr(tim, ':', '')

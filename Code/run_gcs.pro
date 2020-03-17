@@ -21,6 +21,7 @@
 ;       20180711: created by jhinterreiter
 ;-
 function run_gcs, date_time, file, filegui
+	common realTimeImages, rtActive
 	date = strmid(date_time, 0, 8)
 
 	hr = strmid(date_time,9,2)
@@ -37,9 +38,14 @@ function run_gcs, date_time, file, filegui
 		hdrb = hdra
 	endif
 
-	print, 'Lasco: ' + hdrl.date_obs + ' ' + hdrl.time_obs
-	print, 'STA:   ' + hdra.date_obs
-	print, 'STB:   ' + hdrb.date_obs
+	if rtActive eq 0 then begin
+		print, 'Lasco: ' + hdrl.date_obs + ' ' + hdrl.time_obs
+		print, 'STA:   ' + hdra.date_obs
+		print, 'STB:   ' + hdrb.date_obs
+	endif else begin
+		print, 'Lasco: ' + hdrl.date_d$obs + ' ' + hdrl.time_d$obs
+		print, 'STA:   ' + hdra.date_d$obs
+	endelse	
 
 
 	if filegui[0] ne '' then begin

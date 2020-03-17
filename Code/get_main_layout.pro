@@ -23,6 +23,7 @@
 ;       20180711: created by jhinterreiter
 ;-
 function get_main_layout, datetime, sensitive, btnArr = btnArr, offsetPos
+	common realTimeImages, rtActive
 
 	xsize = offsetPos[0]
 	ysize = offsetPos[1]
@@ -33,13 +34,17 @@ function get_main_layout, datetime, sensitive, btnArr = btnArr, offsetPos
 	labStartDate = widget_label(base, value = 'Date:', /align_left, yoffset = 10)
 	txtStartDate = widget_text(base, value = datetime, uname = 'txtStart', xoffset = 100, /editable, /all_events, tab_mode = 1, sensitive = sensitive);, event_pro='test_event')
 
+	cbBase = Widget_Base(base, Title='', /ROW, /ALIGN_CENTER, /NonExclusive)
 	baseButtons = WIDGET_BASE(base, /ROW, /ALIGN_CENTER, tab_mode = 1)
+	cbRealtime =  Widget_Button(cbBase, Value='Realtime Images', uvalue='rtImages', event_pro = 'rtImages_event', sensitive = sensitive)
 	btnGetParameter = WIDGET_BUTTON(baseButtons, VALUE='Create EC cut', uvalue='createECcut', event_pro = 'createECcut_event', tab_mode = 1, sensitive = sensitive)
 	btnGetParameter = WIDGET_BUTTON(baseButtons, VALUE='Run GCS', uvalue='runGCS', event_pro = 'runGCS_event', tab_mode = 1, sensitive = sensitive)
 	;btnRunGCS = WIDGET_BUTTON(baseButtons, VALUE='run GCS', uvalue='RUN_GCS', event_pro = 'runGCS_event', /tab_mode);, sensitive= 1)
 	btnPrepare = WIDGET_BUTTON(baseButtons, VALUE='Prepare Images', uvalue='PrepData', event_pro = 'prepare_event', tab_mode = 1, sensitive = sensitive)
 	btnDownload = WIDGET_BUTTON(baseButtons, VALUE='Download Images', uvalue='DWLDIMGS', event_pro='downloadImgs_event', tab_mode = 1, sensitive = sensitive)
 	btnClose = WIDGET_BUTTON(baseButtons, VALUE='Close', uvalue = 'CLOSE', event_pro = 'close_event', tab_mode = 1, sensitive =sensitive)
+
+	if rtActive eq 1 then widget_control, cbRealtime, /set_button
 
 	childBtns = widget_info(baseButtons, /all_children)
 	n_btns = widget_info(baseButtons, /n_children)

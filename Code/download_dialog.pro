@@ -13,6 +13,7 @@ end
 ; is called when button 'download' is pressed
 pro downloadDW_event, ev
 ;	common userDecision, decDownload	
+	common realTimeImages, rtActive
 	txtStart = WIDGET_INFO( ev.top, FIND_BY_UNAME ='txtStartDownload')
 	widget_control, txtStart, get_value = startDate
 	txtEnd = WIDGET_INFO( ev.top, FIND_BY_UNAME ='txtEndDownload' )
@@ -30,7 +31,8 @@ pro downloadDW_event, ev
 	
 ;	print, startDate, endDate, ST_det[SelItemSt], LA_det[selItemLA]
 	widget_control, /hourglass
-	download_images, startdate, enddate, ST_det[SelItemSt], LA_det[selItemLA], status = status
+	if rtActive eq 0 then download_images, startdate, enddate, ST_det[SelItemSt], LA_det[selItemLA], status = status
+	if rtActive eq 1 then download_realtime_images, ST_det[SelItemSt], LA_det[selItemLA], startdate, status = status
 	if status eq 1 then widget_control, labINfo, set_value = 'Donwload complete!'
 	if status eq 0 then begin
 		msg = Dialog_message('Downloading images did not work', /error, dialog_parent = ev.top)
@@ -70,7 +72,7 @@ END
 ;       20181129: created by jhinterreiter
 ;-
 pro download_dialog, groupLeader, startDate
-
+common realTimeImages, rtActive
 
 baseDownload = widget_base(group_leader = groupLeader, xsize = 450, ysize = 135, frame = 0, title = 'Download Images', tab_mode = 1, /modal)
 ;baseDownload = widget_base(xsize = 512, ysize = 512, frame = 0, title = 'Download Data', tab_mode = 1)
@@ -82,7 +84,8 @@ labDetStereo = widget_label(baseDownload, value = 'Detector Stereo:', yoffset = 
 labDetLasco = widget_label(baseDownload, value = 'Detector Lasco:', yoffset = 45, xoffset = 250)
 
 drpListLASCO = widget_droplist(baseDownload, value = ['C2', 'C3'], uname = 'dropList_LA', Tab_mode = 1, xoffset = 345, yoffset = 35);, func_get_value = 'getVAlDLST')
-drpListST = widget_droplist(baseDownload, value = ['COR2', 'COR1'], uname = 'dropList_ST', Tab_mode = 1, xoffset = 345, yoffset = 5);, func_get_value = 'getVAlDLST')
+if rtActive eq 1 then drpListST = widget_droplist(baseDownload, value = ['COR2'], uname = 'dropList_ST', Tab_mode = 1, xoffset = 345, yoffset = 5);, func_get_value = 'getVAlDLST')
+if rtActive eq 0 then drpListST = widget_droplist(baseDownload, value = ['COR2', 'COR1'], uname = 'dropList_ST', Tab_mode = 1, xoffset = 345, yoffset = 5);, func_get_value = 'getVAlDLST')
 
 
 btnClose = WIDGET_BUTTON(baseDownload, VALUE='Done', uvalue = 'CLOSE', xoffset = 400, yoffset = 100, event_pro = 'closeDownload_event')

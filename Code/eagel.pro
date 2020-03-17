@@ -24,13 +24,15 @@
 ;       20181120: created by jhinterreiter
 ;-
 pro EAGEL, ELEvoHIDate, datetime = datetime
-	common widPrepare, isPrepare, dattim, stdet, ladet, rect, diffImgST, diffImgLA, adv
+	common widPrepare, isPrepare, datTim, stdet, ladet, rect, diffImgST, diffImgLA, adv, baseST, baseLA
 	common widPositon, widOffsetPos
+	common realTimeImages, rtActive
 	
 	
 read_eagel_config_file
 
 isPrepare = 0
+rtActive = 0
 
 ;predefined date
 date_time = '20101104T01:54:09'
@@ -66,7 +68,8 @@ while 1 eq 1 do begin
 		base = get_main_layout(date_time, 0, btnArr = btns, widPos)
 		WIDGET_CONTROL, base, /REALIZE
 		widget_control, /hourglass
-		prepare_data, date_time, stdet, ladet, rect, diffImgST, diffImgLA, adv, parent = base
+		if rtActive eq 0 then prepare_data, date_time, stdet, ladet, rect, diffImgST, diffImgLA, adv, baseST, baseLA, parent = base
+		if rtActive eq 1 then prepare_realtime_data, date_time, stdet, ladet, diffImgST, diffImgLA, baseST, baseLA, parent = base
 		widget_control, base, /destroy
 	endif
 	if isPrepare ne 1 then break

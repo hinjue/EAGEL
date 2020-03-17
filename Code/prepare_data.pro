@@ -44,7 +44,7 @@ end
 ; MODIFICATION HISTORY:
 ;       20181129: created by jhinterreiter
 ;-
-pro prepare_data, datetime, stdet, ladet, rectify, diffImgST, diffImgLA, advanced, status = status, parent = parent
+pro prepare_data, datetime, stdet, ladet, rectify, diffImgST, diffImgLA, advanced, baseST, baseLA, status = status, parent = parent
 	common threshs, minthresh, maxthresh
 
 status = 0
@@ -60,6 +60,8 @@ if 0 eq 1 then begin
 	diffImgST = 0
 	diffImgLA = 0
 	advanced = 1
+	baseST = '20101104T02:39:09'
+	baseLA = baseST
 endif
 ; !!!! END JUST FOR TEST !!!!!
 
@@ -104,24 +106,71 @@ endif else begin
 	dt_l=min(abs(anytim(hdrl.time_d$obs)-anytim(time)),min_l)
 	l_img=laPath + hdrl[min_l].filename
 	l_img_before=laPath + hdrl[min_l-1].filename
+	LABaseTime = hdrl[min_l-1].date_d$obs + ' ' + hdrl[min_l-1].time_d$obs
+	if diffImgLA eq 2 then begin
+		dateBS = strmid(baseLA, 0, 8)
+		timeBSLA = strmid(baseLA, 9, 8)
+		laPath = getenv('LASCO_DIR')+ ladet+'/'+dateBS+'/'
+
+		filesLa = file_search(laPath, '*.fts')
+		mreadfits, filesla, hdrl_b
+
+		dt_l=min(abs(anytim(hdrl_b.time_d$obs)-anytim(timeBSLA)),min_lbd)
+		l_img_before=laPath + hdrl_b[min_lbd].filename
+		LABaseTime = hdrl_b[min_lbd].date_d$obs + ' ' + hdrl_b[min_lbd].time_d$obs
+	endif
 
 	time_st=strmid(date,0,4)+'-'+strmid(date,4,2)+'-'+strmid(date,6,2)+'T'+time+'.000'
 	dt_sta=min(abs(anytim(hdra.date_d$obs)-anytim(time_st)),min_a)
 	a_img=aPath+hdra[min_a].filename
 	a_img_before=aPath+hdra[min_a-1].filename
+	ABaseTime = hdra[min_a-1].date_d$obs
 	if stdet eq 'cor1' then a_img_after = aPath+hdra[min_a+1].filename
+
+	if diffImgST eq 2 then begin
+		dateBS = strmid(baseST, 0, 8)
+		timeBSST = strmid(baseST, 9, 8)
+		aPath = getenv('SECCHI_LZ')+'L0/a/img/'+stdet+'/'+dateBS+'/'
+		filesa = file_search(aPath, '*.fts')
+		mreadfits, filesa, hdra_b
+
+		time_st_bs=strmid(dateBS,0,4)+'-'+strmid(dateBS,4,2)+'-'+strmid(dateBS,6,2)+'T'+timeBSST+'.000'
+		dt_sta=min(abs(anytim(hdra_b.date_d$obs)-anytim(time_st_bs)),min_abd)
+		a_img_before=aPath+hdra_b[min_abd].filename
+		ABaseTime = hdra_b[min_abd].date_d$obs
+	endif
 
 	if STBNotAvailable eq 0 then begin
 		dt_stb=min(abs(anytim(hdrb.date_d$obs)-anytim(time_st)),min_b)
 		b_img=bPath+hdrb[min_b].filename
 		b_img_before=bPath+hdrb[min_b-1].filename
+		BBaseTime = hdrb[min_b-1].date_d$obs
 		if stdet eq 'cor1' then b_img_after=bPath+hdrb[min_b+1].filename
+
+		if diffImgST eq 2 then begin
+			dateBS = strmid(baseST, 0, 8)
+			timeBSST = strmid(baseST, 9, 8)
+			bPath = getenv('SECCHI_LZ')+'L0/b/img/'+stdet+'/'+dateBS+'/'
+			filesb = file_search(bPath, '*.fts')
+			mreadfits, filesb, hdrb_b
+
+			time_st_bs=strmid(dateBS,0,4)+'-'+strmid(dateBS,4,2)+'-'+strmid(dateBS,6,2)+'T'+timeBSST+'.000'
+			dt_stb=min(abs(anytim(hdrb_b.date_d$obs)-anytim(time_st_bs)),min_bbd)
+			b_img_before=bPath+hdrb_b[min_bbd].filename
+			BBaseTime = hdrb_b[min_bbd].date_d$obs
+		endif
 	endif
+
+	if diffImgST gt 0 then begin
+		print, 'Base time STA: ' + ABaseTime
+		print, 'Base time STB: ' + BBaseTime
+	endif
+	if diffImgLA gt 0 then print, 'Base time LASCO: ' + LABaseTime
 
 	; !!!!! LASCO !!!!!!
 	pan = imgsize/float(1024)
 	
-	if DiffImgLA eq 1 then begin
+	if DiffImgLA ge 1 then begin
 		iml2 = mk_img(l_img, -20, 80, hdrl2, use_model=2,pan=pan,/diff, /inmask, rectify = rectify, /no_display)
 		iml1 = mk_img(l_img_before, -20, 80, hdrl1, use_model=2,pan=pan,/diff, /inmask, rectify = rectify, /no_display)
 
@@ -162,7 +211,7 @@ endif else begin
 	endif else begin
 
 		; !!!!! STA !!!!!!
-		if diffImgST eq 1 then begin
+		if diffImgST ge 1 then begin
 			ima1ok=scc_mk_image(a_img_before,outsize=imgsize,outhdr=hdra1,/nologo,/nodatetime,/nopop,/noscale,/norotate);, /mask_occ)
 			ima2ok=scc_mk_image(a_img,outsize=imgsize,outhdr=hdra2,/nologo,/nodatetime,/nopop,/noscale,/norotate);, /mask_occ)
 			imaDiff=ima2ok-ima1ok
@@ -175,7 +224,7 @@ endif else begin
 
 		if STBNotAvailable eq 0 then begin
 			; !!!!! STB !!!!!!
-			if diffImgST eq 1 then begin
+			if diffImgST ge 1 then begin
 				imb1ok=scc_mk_image(b_img_before,outsize=imgsize,outhdr=hdrb1,/nologo,/nodatetime,/nopop,/noscale,/norotate);, /mask_occ)
 				imb2ok=scc_mk_image(b_img,outsize=imgsize,outhdr=hdrb2,/nologo,/nodatetime,/nopop,/noscale,/norotate);, /mask_occ)
 				imbDiff=imb2ok-imb1ok
@@ -191,7 +240,7 @@ endif else begin
 	
 	; to stop hourglass cursor
 	w = widget_event(/nowait)
-	loadct, 0	
+	loadct, 0
 	if advanced eq 1 then begin
 		cgStretch, ima_final, /block, notify_pro = 'testNotify', title = 'STA Image, Time: ' + hdra2.date_obs
 		ima_final=Bytscl(ima_final,min=minThresh, max=maxThresh)
@@ -201,7 +250,6 @@ endif else begin
 			imb_final=Bytscl(imb_final,min=minThresh, max=maxThresh)
 		endif
 	endif
-
 	
 	widget_control, /hourglass
 
