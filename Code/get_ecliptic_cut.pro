@@ -83,7 +83,7 @@ if keyword_set(correctForTiltOfSolarRotAx) eq 1 then begin
 	print, '!!! Correct for tilt of Solar Rotation Axis !!!'
 	print, '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
 	sc = 'Earth'
-	; genau für einen Tag
+	
 	th = 0.
 	ph = 90./!radeg
 

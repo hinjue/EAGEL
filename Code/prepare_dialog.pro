@@ -178,7 +178,7 @@ pro prepare_dialog, groupLeader, startDate
 
 	widgetGl = groupLeader
 
-	basePrepare = widget_base(group_leader = groupLeader, xsize = 500, ysize = 150, frame = 0, title = 'Download Data', tab_mode = 1, /modal)
+	basePrepare = widget_base(group_leader = groupLeader, xsize = 500, ysize = 150, frame = 0, title = 'Prepare Images', tab_mode = 1, /modal)
 	;basePrepare = widget_base(xsize = 350, ysize = 150, frame = 0, title = 'Download Data', tab_mode = 1)
 	labDate = widget_label(basePrepare, value = 'Date:', /align_left, yoffset = 15)
 	txtDate = widget_text(basePrepare, value = startDate, uname = 'txtDatePrepare', yoffset = 10, xoffset = 50, /editable, /all_events, xsize = 71);, event_pro='test_event')
@@ -187,7 +187,7 @@ pro prepare_dialog, groupLeader, startDate
 
 
 	drpListLASCO = widget_droplist(basePrepare, value = ['C2', 'C3'], uname = 'dropList_LA', Tab_mode = 1, xoffset = 100, yoffset = 70);, func_get_value = 'getVAlDLST')
-	if rtActive eq 0 then drpListST = widget_droplist(basePrepare, value = ['COR2'], uname = 'dropList_ST', Tab_mode = 1, xoffset = 100, yoffset = 40);, func_get_value = 'getVAlDLST')
+	if rtActive eq 0 then drpListST = widget_droplist(basePrepare, value = ['COR1', 'COR2'], uname = 'dropList_ST', Tab_mode = 1, xoffset = 100, yoffset = 40);, func_get_value = 'getVAlDLST')
 	if rtActive eq 1 then drpListST = widget_droplist(basePrepare, value = ['COR2'], uname = 'dropList_ST', Tab_mode = 1, xoffset = 100, yoffset = 40);, func_get_value = 'getVAlDLST')
 
 	;btnDiffST = CW_BGROUP(basePrepare, 'RD', /COLUMN, /NONEXCLUSIVE, xoffset = 175, yoffset = 40, uname='CBDiffST')

@@ -38,6 +38,12 @@ function run_gcs, date_time, file, filegui
 		hdrb = hdra
 	endif
 
+	if isa(iml, /array) eq 0 then begin
+		imbl= ima
+		iml[*,*] = 0
+		hdrl = hdra
+	endif
+
 	if rtActive eq 0 then begin
 		print, 'Lasco: ' + hdrl.date_obs + ' ' + hdrl.time_obs
 		print, 'STA:   ' + hdra.date_obs
@@ -53,7 +59,6 @@ function run_gcs, date_time, file, filegui
 		sparaminit = sgui
 		print, 'Old parameters restored'
 	endif
-
 
 	rtsccguicloud,ima,imb,hdra,hdrb, imlasco=iml, hdrlasco=hdrl, sgui=sgui, swire=swire, ocout=ocout, sparaminit=sparaminit, ssim = ssim, /modal
 

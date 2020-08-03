@@ -165,19 +165,18 @@ function get_half_angle, datetime, sgui, swire, parent
 		if savePlot eq 1 then begin
 			!p.multi = [0, 1, 3]
 			set_plot, 'ps'
-			posUnder = strpos(files, '_', /reverse_search)+1
-			timFiles = strmid(files, posUnder, 6)
 			device, filename = plotPath+'/'+date+'.ps', xsize = 15, ysize = 25, xoffset = 2, yoffset = 2, encaps = 0
 		endif
 
+		sunsym = SUNSYMBOL()
 
 		;plot for the USER to select the boundaries of the CME
 		!p.background = cgcolor('white')
 		window, 0, xsize = 750, ysize = 750
 		plot, x, y, xrange = xrange, yrange = yrange, xstyle = 1, ystyle = 1 $
 		;	, position = [0.3, 0.7, 0.8, 1.0] $
-			, /nodata, color = cgcolor('black');, title = 'Define CME boundaries, use left and right mouse buttons', color = cgcolor('black')
-	
+			, /nodata, color = cgcolor('black') $;, title = 'Define CME boundaries, use left and right mouse buttons', color = cgcolor('black')
+			, xthick = 2, ythick = 2, ytit = 'y [R'+sunsym+']', xtit = 'x [R'+sunsym+']';, charthick = 2
 	
 
 		directionsapex = fltarr(filecnt)
@@ -357,6 +356,9 @@ function get_half_angle, datetime, sgui, swire, parent
 			
 			plots, [0, 0], [0, 0], /data, psym = 8, symsize = 14, color = cgcolor('gold')
 
+			PLOTS,[0,xmin], [0,ymin], /data, color = cgcolor('red')
+			PLOTS,[0,xmax], [0,ymax], /data, color = cgcolor('green')
+
 			;print, 'Left: ', angleLeft
 			;print, 'Right: ', angleRight
 			;print, 'Apex: ', apexangle
@@ -377,6 +379,7 @@ function get_half_angle, datetime, sgui, swire, parent
 
 
 			; remember the values
+			apAngle = apexAngle
 			apexAngle = -1*apexAngle
 			retArr = fltarr(4)
 			retArr[0] = halfAngle
@@ -392,7 +395,41 @@ function get_half_angle, datetime, sgui, swire, parent
 			msg = Dialog_message('Continue with this selection?', /question, dialog_parent = parent)
 ;			msg = 'Yes'
 			!Mouse.Button = 1
-			if msg eq 'Yes' then wdelete, 0
+			if msg eq 'Yes' then begin 
+
+				print, plotpath + '/'+ date
+				;/home/jhinterreiter/EAGEL//results/20101026/plots//20101026
+				set_plot, 'ps'
+				device, filename = plotPath+'/'+date+'_new.eps', xsize = 15, ysize = 13.81, xoffset = 2, yoffset = 2, encaps = 0
+				
+				plot, x, y, xrange = xrange, yrange = yrange, xstyle = 1, ystyle = 1 $
+				, /nodata, color = cgcolor('black') $;, title = 'Define CME boundaries, use left and right mouse buttons', color = cgcolor('black')
+				, xthick = 3, ythick = 3, ytit = 'y [R'+sunsym+']', xtit = 'x [R'+sunsym+']', charthick = 2, charsize = 1.5
+
+
+				oplot, xa, yA, psym = 8, symsize = 0.3, color = cgcolor('black')
+
+				PLOTS,[0,xmin], [0,ymin], /data, color = cgcolor('red'), thick = 5
+				PLOTS,[0,xmax], [0,ymax], /data, color = cgcolor('green'), thick = 5
+
+				PLOTS, xvals[indFarestPoint], yvals[indFarestPoint], psym = 2, color = cgcolor('red')
+				oplot, fltarr(1) + apexpositions[0], fltarr(1)+apexpositions[1], psym = 2, color = cgcolor('darkgreen')
+	
+				arrow, 0, 0, 0, !y.crange[1]-0.05*maxdiff, /data, color = cgcolor('blue'), linestyle = 2, thick = 1
+				xyouts, 0, !y.crange[1]-0.04*maxdiff, 'to Earth', /data, color = cgcolor('blue'), charsize = 1, charthick = 2
+
+				plots, [0, range*sin(apAngle/!radeg)], [0, range*cos(apAngle/!radeg)], /data, color = cgcolor('gold'), thick = 5
+			
+				plots, [0, 0], [0, 0], /data, psym = 8, symsize = 9.5, color = cgcolor('gold')
+
+
+				device, /close
+				set_plot, 'x'
+				!p.multi = 0
+
+
+				wdelete, 0
+			endif
 			if msg eq 'No' then begin
 				msg = Dialog_message('Do you want to quit?', /question, dialog_parent = parent)
 				if msg eq 'Yes' then begin

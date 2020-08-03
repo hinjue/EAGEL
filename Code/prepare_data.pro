@@ -163,7 +163,9 @@ endif else begin
 
 	if diffImgST gt 0 then begin
 		print, 'Base time STA: ' + ABaseTime
-		print, 'Base time STB: ' + BBaseTime
+		if STBNotAvailable eq 0 then begin
+			print, 'Base time STB: ' + BBaseTime
+		endif
 	endif
 	if diffImgLA gt 0 then print, 'Base time LASCO: ' + LABaseTime
 
@@ -281,7 +283,7 @@ endif else begin
 		r_iml = rebin(iml_new, smallSize, smallSize)
 		r_ima = rebin(ima_new, smallSize, smallSize)
 		
-		window, 1, xsize=2*smallSize, ysize=smallSize, ypose = 0, xpos = 0, title = 'NEW:	Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
+		window, 1, xsize=2*smallSize, ysize=smallSize, ypos = 0, xpos = 0, title = 'NEW:	Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
 		tv, r_iml, 0
 		tv, r_ima, 1
 	endelse
@@ -303,7 +305,7 @@ endif else begin
 			r_iml = rebin(iml, smallSize, smallSize)
 			r_ima = rebin(ima, smallSize, smallSize)
 		
-			window, 2, xsize=2*smallSize, ysize=smallSize, ypos = smallsize+30, xpos = 0, title = 'OLD:	Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
+			window, 2, xsize=2*smallSize, ysize=smallSize, ypos = smallsize+30, xpos = 0;, title = 'OLD:	Lasco '+ladet+':'+hdrl.time_obs+'       STA: '+hdra.date_obs
 			tv, r_iml, 0
 			tv, r_ima, 1
 		endelse
@@ -318,7 +320,11 @@ endif else begin
 	
 	if msg eq 'Yes' then begin
 		ima = ima_new
-		imb = imb_new
+		if STBNotAvailable eq 0 then begin
+			imb = imb_new
+		endif else begin
+			imb = ima_new
+		endelse
 		iml = iml_new
 		tim = strmid(time, 0, 2)+strmid(time, 3, 2)+strmid(time, 6, 2)
 	
